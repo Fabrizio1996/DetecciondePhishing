@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Verificador de URL de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="static/styles.css">
+  </head>
+  <body>
+    <div>
+      <h1>Verifica la URL para Phishing</h1>
+      <form method="post">
+        <input type="text" name="url" placeholder="Introduce la URL" required>
+        <button type="submit">Verificar</button>
+      </form>
+      {% if result %}
+        <p>{{ result }}</p>
+        {% if result == 'Phishing' %}
+          <p class="warning">URL peligrosa</p>
+        {% else %}
+          <p class="safe">URL se ve confiable</p>
+        {% endif %}
+        
+        <!-- Añadir el canvas para el gráfico -->
+        <div>
+          <canvas id="phishingChart" width="400" height="200"></canvas>
+        </div>
+      {% endif %}
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var ctx = document.getElementById('phishingChart').getContext('2d');
+        var data = {
+          labels: ['Phishing', 'Seguro'],
+          datasets: [{
+            label: 'Resultados de Detección',
+            data: [0, 0], // Inicialmente ambos valores en 0
+            backgroundColor: ['#ff3d00', '#00e676'],
+            borderColor: ['#d32f2f', '#00c853'],
+            borderWidth: 1
+          }]
+        };
+
+        var phishingChart = new Chart(ctx, {
+          type: 'bar', // Puedes cambiar esto a 'doughnut' o 'pie'
+          data: data,
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+
+        // Función para actualizar los datos del gráfico
+        function updateChart(isPhishing) {
+          data.datasets[0].data = isPhishing ? [1, 0] : [0, 1];
+          phishingChart.update();
+        }
+
+        // Actualizar el gráfico según el resultado
+        {% if result %}
+          updateChart('{{ result }}' === 'Phishing');
+        {% endif %}
+      });
+    </script>
+  </body>
+</html>
+
+
